@@ -65,8 +65,6 @@ class SudokuSolver {
 
     const enteredRow = values[0].toLowerCase().charCodeAt(0) - 96;
     const enteredColumn = Number(values[1]);
-    console.log(enteredRow);
-    console.log(enteredColumn);
     
     if (isNaN(enteredColumn)) {
       return "Invalid coordinate";
@@ -90,7 +88,6 @@ class SudokuSolver {
 
   checkColPlacement(column, value) {
     const colToCheck = this.arrayObject.filter(x => x.col === column);
-    console.log(colToCheck)
     if (colToCheck.find(x => x.value === value)) {
       return false;
     } else {
@@ -102,9 +99,9 @@ class SudokuSolver {
     const region = this.getRegion(row, column);
     const regionToCheck = this.arrayObject.filter(x => x.region === region);
     if(regionToCheck.find(x => x.value === value)) {
-      return true;
-    } else {
       return false;
+    } else {
+      return true;
     }
   }
 
