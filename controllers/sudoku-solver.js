@@ -1,12 +1,19 @@
 class SudokuSolver {
 
+  constructor(puzzleString) {
+    console.log(puzzleString)
+    this.validation = this.validate(puzzleString);
+    this.cols = this.getColumns(puzzleString)
+    this.rows = this.getRows(puzzleString)
+  }
+
   validate(puzzleString) {
 
     if (puzzleString.length !== 81) {
       return "Expected puzzle to be 81 characters long";
     }
     
-    puzzleArray = puzzleString.split('');
+    const puzzleArray = puzzleString.split('');
     puzzleArray.forEach(element => {
       if (!/\d/.test(element) && !/./.test(element)) {
         return "Invalid characters in puzzle";
@@ -38,6 +45,20 @@ class SudokuSolver {
       })
     })
     return cols;
+  }
+
+  getRegion(puzzleString) {
+      let rowValue = 1;
+      let colValue = 0;
+    const puzzleArray = puzzleString.split('').map((el, ind) => {
+      colValue++;
+      if (ind > 8 && (ind % 9 === 0)) {
+          rowValue++;
+          colValue = 1;
+      }
+      return {row: rowValue, col: colValue, value: el}
+    })
+    console.log(puzzleArray)
   }
 
   checkRowPlacement(puzzleString, row, column, value) {    
