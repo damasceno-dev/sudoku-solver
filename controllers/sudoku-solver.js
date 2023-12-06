@@ -1,10 +1,8 @@
 class SudokuSolver {
 
   constructor(puzzleString) {
-    console.log(puzzleString)
     this.validation = this.validate(puzzleString);
-    this.cols = this.getColumns(puzzleString)
-    this.rows = this.getRows(puzzleString)
+    this.arrayObject = this.getArrayObject(puzzleString)
   }
 
   validate(puzzleString) {
@@ -23,31 +21,28 @@ class SudokuSolver {
     return true;
   }
 
-  getRows(puzzleString) {
-      let row = []
-      let rows = []
-    puzzleString.split('').forEach((e, i) => {
-      row.push(e)
-      if (i > 7 && ((i + 1) % 9 === 0)) {
-          rows.push(row);
-        row = [];
-      }
-    })
-    return rows;
+  getRegion(row, col) {
+    if (row <= 3 && col <= 3) {
+      return 1;
+    } else if ( row <= 3 && col >= 4 && col <= 6) {
+      return 2;
+    } else if ( row <= 3 && col >=7) {
+      return 3;
+    } else if ( row >= 4 && row <= 6 && col <= 3) {
+      return 4;
+    } else if (row >= 4 && row <= 6 && col >= 4 && col <= 6) {
+      return 5;
+    } else if (row >= 4 && row <= 6 && col >=7) {
+      return 6;
+    } else if (row >=7 && col <= 3) {
+      return 7;
+    } else if (row >=7 && col >= 4 && col <= 6) {
+      return 8;
+    } else if (row >=7 && col >=7) {
+      return 9;
+    }
   }
-  
-  getColumns(puzzleString) {
-    const cols = Array.from({ length: 9 }, () => []);
-    const rows = this.getRows(puzzleString);
-    rows.forEach((arr, x) => {
-      arr.forEach((e,i) => {
-        cols[i].push(e)
-      })
-    })
-    return cols;
-  }
-
-  getRegion(puzzleString) {
+  getArrayObject(puzzleString) {
       let rowValue = 1;
       let colValue = 0;
     const puzzleArray = puzzleString.split('').map((el, ind) => {
@@ -56,21 +51,61 @@ class SudokuSolver {
           rowValue++;
           colValue = 1;
       }
-      return {row: rowValue, col: colValue, value: el}
+      return {row: rowValue, col: colValue, region: this.getRegion(rowValue, colValue), value: el}
     })
-    console.log(puzzleArray)
+
+    return puzzleArray;
   }
 
-  checkRowPlacement(puzzleString, row, column, value) {    
-    const rows = getRows(puzzleString)
+  getCoordinate(coord) {
+    const values = coord.split('');
+    if (values.length !== 2) {
+      return "Invalid coordinate";
+    }
+
+    const enteredRow = values[0].toLowerCase().charCodeAt(0) - 96;
+    const enteredColumn = Number(values[1]);
+    console.log(enteredRow);
+    console.log(enteredColumn);
+    
+    if (isNaN(enteredColumn)) {
+      return "Invalid coordinate";
+    }
+    if (enteredRow < 1 || enteredRow > 9 || enteredColumn < 1 || enteredColumn > 9) {
+      return "Invalid coordinate";
+    }
+
+    return [enteredRow, enteredColumn]
   }
 
-  checkColPlacement(puzzleString, row, column, value) {
 
+  checkRowPlacement(row, value) {    
+    const rowToCheck = this.arrayObject.filter(x => x.row === row);
+    if (rowToCheck.find(x => x.value === value)) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
-  checkRegionPlacement(puzzleString, row, column, value) {
+  checkColPlacement(column, value) {
+    const colToCheck = this.arrayObject.filter(x => x.col === column);
+    console.log(colToCheck)
+    if (colToCheck.find(x => x.value === value)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
 
+  checkRegionPlacement(row, column, value) {
+    const region = this.getRegion(row, column);
+    const regionToCheck = this.arrayObject.filter(x => x.region === region);
+    if(regionToCheck.find(x => x.value === value)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   solve(puzzleString) {
