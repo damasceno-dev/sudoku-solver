@@ -12,9 +12,7 @@ module.exports = function (app) {
       
       const [rowToCheck,columnToCheck] = sudoku.getCoordinate(coordinate);
 
-      console.log(sudoku.checkColPlacement(columnToCheck, value))
-      console.log(sudoku.checkRowPlacement(rowToCheck, value))
-      console.log(sudoku.checkRegionPlacement(rowToCheck, columnToCheck, value))
+      console.log(sudoku.solution)
 
     });
     

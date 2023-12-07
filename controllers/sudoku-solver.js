@@ -3,6 +3,7 @@ class SudokuSolver {
   constructor(puzzleString) {
     this.validation = this.validate(puzzleString);
     this.arrayObject = this.getArrayObject(puzzleString)
+    this.solution = this.solve()
   }
 
   validate(puzzleString) {
@@ -77,36 +78,69 @@ class SudokuSolver {
   }
 
 
-  checkRowPlacement(row, value) {    
+  checkRowPlacement( row, value) {    
     const rowToCheck = this.arrayObject.filter(x => x.row === row);
-    if (rowToCheck.find(x => x.value === value)) {
+    if (rowToCheck.find(x => x.value === value.toString())) {
       return false;
     } else {
       return true;
     }
   }
 
-  checkColPlacement(column, value) {
+  checkColPlacement( column, value) {
     const colToCheck = this.arrayObject.filter(x => x.col === column);
-    if (colToCheck.find(x => x.value === value)) {
+    if (colToCheck.find(x => x.value === value.toString())) {
       return false;
     } else {
       return true;
     }
   }
 
-  checkRegionPlacement(row, column, value) {
+  checkRegionPlacement( row, column, value) {
     const region = this.getRegion(row, column);
     const regionToCheck = this.arrayObject.filter(x => x.region === region);
-    if(regionToCheck.find(x => x.value === value)) {
+    if(regionToCheck.find(x => x.value === value.toString())) {
       return false;
     } else {
       return true;
     }
   }
 
-  solve(puzzleString) {
+  solve() {
+
     
+
+    do {
+    let indexToRevalidate = 0;
+    let newValue = 0;
+    this.arrayObject.every((element, ind) => {
+      if (element.value === '.') {
+        for (let i = 1; i< 10; i++) {
+       //   if(this.checkColPlacement(element.col, i) && 
+       //     this.checkRowPlacement(element.row, i) && 
+       //     this.checkRegionPlacement(element.row, element.col, i)) {
+        if (this.checkColPlacement(element.col, i) && 
+             this.checkRowPlacement(element.row, i) && 
+             this.checkRegionPlacement(element.row, element.col, i)) {
+            indexToRevalidate = ind;
+            newValue = i.toString();
+              return false
+            } 
+        else if (i=== 9) {
+              indexToRevalidate = ind;
+              newValue = 'N';
+              return false
+            }
+          }
+      } else {
+        return true;
+      }
+    })
+    this.arrayObject[indexToRevalidate].value = newValue;
+    } while (this.arrayObject.find(el => el.value === '.') && this.arrayObject.every(el => el.value !== 'N'))
+
+    console.log(this.arrayObject)
+    console.log(this.arrayObject.map(x => x.value).concat())
   }
 }
 
