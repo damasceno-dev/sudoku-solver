@@ -52,8 +52,8 @@ this.arrayObject.every((element, ind) => {
    //   if(this.checkColPlacement(element.col, i) && 
    //     this.checkRowPlacement(element.row, i) && 
    //     this.checkRegionPlacement(element.row, element.col, i)) {
-    if (this.checkColPlacement(element.col, i) && 
-         this.checkRowPlacement(element.row, i) && 
+    if (this.checkColPlacement(element.col, i) &&
+         this.checkRowPlacement(element.row, i) &&
          this.checkRegionPlacement(element.row, element.col, i)) {
         indexToRevalidate = ind;
         newValue = i.toString();
@@ -69,5 +69,7 @@ this.arrayObject.every((element, ind) => {
     return true;
   }
 })
+
 this.arrayObject[indexToRevalidate].value = newValue;
+
 } while (this.arrayObject.find(el => el.value === '.') && this.arrayObject.every(el => el.value !== 'N'))

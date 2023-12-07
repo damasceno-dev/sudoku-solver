@@ -3,7 +3,7 @@ class SudokuSolver {
   constructor(puzzleString) {
     this.validation = this.validate(puzzleString);
     this.arrayObject = this.getArrayObject(puzzleString)
-    this.solution = this.solve()
+    this.solution = this.solve(puzzleString, 0)
   }
 
   validate(puzzleString) {
@@ -43,7 +43,7 @@ class SudokuSolver {
       return 9;
     }
   }
-  getArrayObject(puzzleString) {
+  getArrayObject(puzzleString, numberOfSkips, valueOfSkip) {
       let rowValue = 1;
       let colValue = 0;
     const puzzleArray = puzzleString.split('').map((el, ind) => {
@@ -55,6 +55,15 @@ class SudokuSolver {
       return {row: rowValue, col: colValue, region: this.getRegion(rowValue, colValue), value: el}
     })
 
+    for (let i = 0; i < numberOfSkips; i++) {
+      console.log(numberOfSkips)
+      console.log(puzzleArray.map(x => x.value).join(''))
+      let indexToReplace = puzzleArray.findIndex(x => x.value === '.');
+      console.log(indexToReplace)
+      puzzleArray[indexToReplace].value = valueOfSkip;
+      console.log(puzzleArray.map(x => x.value).join(''))
+    }
+    
     return puzzleArray;
   }
 
@@ -106,41 +115,61 @@ class SudokuSolver {
     }
   }
 
-  solve() {
-
-    
-
+  solvingAlgo(puzzleString, valueToCheck, valueOfSkip) {
+    let skip = 0;
+    let enterSkip = false;
     do {
     let indexToRevalidate = 0;
     let newValue = 0;
     this.arrayObject.every((element, ind) => {
-      if (element.value === '.') {
+      if (element.value === valueToCheck) {
         for (let i = 1; i< 10; i++) {
-       //   if(this.checkColPlacement(element.col, i) && 
-       //     this.checkRowPlacement(element.row, i) && 
-       //     this.checkRegionPlacement(element.row, element.col, i)) {
-        if (this.checkColPlacement(element.col, i) && 
-             this.checkRowPlacement(element.row, i) && 
-             this.checkRegionPlacement(element.row, element.col, i)) {
-            indexToRevalidate = ind;
-            newValue = i.toString();
-              return false
-            } 
-        else if (i=== 9) {
-              indexToRevalidate = ind;
-              newValue = 'N';
-              return false
-            }
-          }
+              if (this.checkColPlacement(element.col, i) &&
+                   this.checkRowPlacement(element.row, i) &&
+                   this.checkRegionPlacement(element.row, element.col, i)) {
+                    indexToRevalidate = ind;
+                    newValue = i.toString();
+                    return false;
+                  }
+              else if (i=== 9) { //no solution
+                    skip++;
+                    enterSkip = true; //to enter the skip if and dont call
+                    return false;
+                  }
+         }
       } else {
         return true;
       }
     })
-    this.arrayObject[indexToRevalidate].value = newValue;
-    } while (this.arrayObject.find(el => el.value === '.') && this.arrayObject.every(el => el.value !== 'N'))
+    if (enterSkip)  {
+      //try to solve the challenge starting from a different point ahead
+      //mark x dots with skip, where x = skip
+      this.arrayObject = this.getArrayObject(puzzleString, skip, valueOfSkip);
+      enterSkip = false; //need to mark if it is to enter the skip (no solution) or not (solution is found)
+    } else {
+      //replace the dot for the solution
+      this.arrayObject[indexToRevalidate].value = newValue;
+    }
+      //console.log(this.arrayObject.map(x => x.value).join(''))
+    } while (this.arrayObject.find(el => el.value === valueOfSkip))
+  //&& this.arrayObject.every(el => el.value !== 'T')
+    console.log(this.arrayObject.map(x => x.value).join(''))
+  }
 
-    console.log(this.arrayObject)
-    console.log(this.arrayObject.map(x => x.value).concat())
+  solve(puzzleString) {
+    let iterations = 0;
+    let valueToCheck = '.';
+    let valueOfSkip = 'a';
+    do {
+      this.solvingAlgo(puzzleString, valueToCheck, valueOfSkip);
+      valueToCheck = valueOfSkip;
+      valueOfSkip = String.fromCharCode(valueOfSkip.charCodeAt(0) + 1)
+      iterations++;
+      console.log('array', this.arrayObject.map(x => x.value).join(''));
+      console.log('iterations', iterations);
+      console.log('valueToCheck', valueToCheck);
+      console.log('valueOfSkip', valueOfSkip);
+    } while (this.arrayObject.find(el => isNaN(Number(el.value))) && iterations <= 23)
   }
 }
 
