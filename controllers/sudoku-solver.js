@@ -9,17 +9,17 @@ class SudokuSolver {
   validate(puzzleString) {
 
     if (puzzleString.length !== 81) {
-      return "Expected puzzle to be 81 characters long";
+      return {result: false, msg: "Expected puzzle to be 81 characters long"};
     }
 
     const puzzleArray = puzzleString.split('');
     puzzleArray.forEach(element => {
       if (!/\d/.test(element) && !/./.test(element)) {
-        return "Invalid characters in puzzle";
+        return {result: false, msg: "Invalid characters in puzzle"};
       }
     })
 
-    return true;
+    return {result: true};
   }
 
   getRegion(row, col) {

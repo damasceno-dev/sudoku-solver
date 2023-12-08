@@ -19,6 +19,20 @@ module.exports = function (app) {
     
   app.route('/api/solve')
     .post((req, res) => {
+      if (!req.body.puzzle) {
+        return res.json('Required field missing')
+      }
+      const sudoku = new SudokuSolver(req.body.puzzle);
+      const {validation, solution} = sudoku;
+      if (!validation.result) {
+        return res.json({error: validation.msg });
+      }
+      if (!solution) {
+        return res.json({error: 'Puzzle cannot be solved'});
+      }
+      
+      const solutionString = sudoku.arrayObject.map(x => x.value).join('');
 
+      return res.json({solution: solutionString});
     });
 };
