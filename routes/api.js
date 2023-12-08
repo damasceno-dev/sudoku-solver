@@ -13,6 +13,7 @@ module.exports = function (app) {
       const [rowToCheck,columnToCheck] = sudoku.getCoordinate(coordinate);
 
       console.log(sudoku.solution)
+      console.log(sudoku.arrayObject.map(x => x.value).join(''))
 
     });
     
