@@ -6,26 +6,46 @@ module.exports = function (app) {
 
   app.route('/api/check')
     .post((req, res) => {
-      const sudoku = new SudokuSolver(req.body.puzzle);
+      
+      if(!req.body.coordinate || !req.body.value || !req.body.puzzle) {
+        return res.json({error: 'Required field(s) missing'})
+      }
+      
       const coordinate = req.body.coordinate;
       const value = req.body.value;
+      const sudoku = new SudokuSolver(req.body.puzzle);
+      const validation = sudoku.validation; 
       
-      const [rowToCheck,columnToCheck] = sudoku.getCoordinate(coordinate);
+      if (!validation.result) {
+        return res.json({error: validation.msg });
+      }
+      
+      const coordinateObj = sudoku.getCoordinate(coordinate)
+      if (!coordinateObj.result) {
+        return res.json({error: coordinateObj.msg });
+      }
 
-      console.log(sudoku.solution)
-      console.log(sudoku.arrayObject.map(x => x.value).join(''))
-
+      if (isNaN(Number(value)) || value < 1 || value > 9) {
+        return res.json({error: 'Invalid value'})
+      }
+      
+      const [rowToCheck,columnToCheck] = coordinateObj.values;
+      
+      return res.json(sudoku.checkPlacement(rowToCheck, columnToCheck, value))
+      
     });
     
   app.route('/api/solve')
     .post((req, res) => {
       if (!req.body.puzzle) {
-        return res.json('Required field missing')
+        return res.json({ error: 'Required field missing' });
       }
       const sudoku = new SudokuSolver(req.body.puzzle);
-      const {validation, solution} = sudoku;
+      const validation = sudoku.validation;
+      const solution = sudoku.solve();
+      
       if (!validation.result) {
-        return res.json({error: validation.msg });
+        return res.json({ error: validation.msg});
       }
       if (!solution) {
         return res.json({error: 'Puzzle cannot be solved'});

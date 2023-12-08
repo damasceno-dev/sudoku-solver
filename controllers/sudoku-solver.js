@@ -3,21 +3,22 @@ class SudokuSolver {
   constructor(puzzleString) {
     this.validation = this.validate(puzzleString);
     this.arrayObject = this.getArrayObject(puzzleString)
-    this.solution = this.solve(puzzleString);
+    //this.solution = this.solve(puzzleString);
   }
 
   validate(puzzleString) {
 
+    if (!puzzleString) {
+      return {result: false, msg: "Required field(s) missing"};
+    }
+
     if (puzzleString.length !== 81) {
       return {result: false, msg: "Expected puzzle to be 81 characters long"};
     }
-
-    const puzzleArray = puzzleString.split('');
-    puzzleArray.forEach(element => {
-      if (!/\d/.test(element) && !/./.test(element)) {
+    
+    if (!puzzleString.split('').every(element => /\d/.test(element) || /\./.test(element))) {
         return {result: false, msg: "Invalid characters in puzzle"};
-      }
-    })
+    }
 
     return {result: true};
   }
@@ -60,20 +61,20 @@ class SudokuSolver {
   getCoordinate(coord) {
     const values = coord.split('');
     if (values.length !== 2) {
-      return "Invalid coordinate";
+      return {result: false, msg: "Invalid coordinate"}
     }
 
     const enteredRow = values[0].toLowerCase().charCodeAt(0) - 96;
     const enteredColumn = Number(values[1]);
 
     if (isNaN(enteredColumn)) {
-      return "Invalid coordinate";
+      return {result: false, msg: "Invalid coordinate"}
     }
     if (enteredRow < 1 || enteredRow > 9 || enteredColumn < 1 || enteredColumn > 9) {
-      return "Invalid coordinate";
+      return {result: false, msg: "Invalid coordinate"}
     }
 
-    return [enteredRow, enteredColumn]
+    return {result: true, values: [enteredRow, enteredColumn]}
   }
 
 
@@ -105,6 +106,27 @@ class SudokuSolver {
     }
   }
 
+  checkPlacement(row, column, value) {
+    const conflictArray = []
+    if (this.arrayObject.find(el => el.row === row && el.col === column).value === value.toString()) {
+      return {valid: true, conflict: conflictArray};
+    }
+    if(!this.checkRowPlacement(row, value)) {
+      conflictArray.push('row');
+    }
+    if(!this.checkColPlacement(column, value)) {
+      conflictArray.push('column');
+    }
+    if(!this.checkRegionPlacement(row, column, value)) {
+      conflictArray.push('region');
+    }
+    if (conflictArray.length > 0) {
+      return {valid: false, conflict: conflictArray};
+    }
+    
+    return {valid: true, conflict: conflictArray};
+  }
+
   solve() {
     const emptyCell = this.arrayObject.find((cell) => cell.value === '.');
 
@@ -132,7 +154,6 @@ class SudokuSolver {
         emptyCell.value = '.'; // Backtrack
       }
     }
-
     return false; // No valid number for the current cell
   };
 
