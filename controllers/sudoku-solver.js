@@ -16,7 +16,7 @@ class SudokuSolver {
       return {result: false, msg: "Expected puzzle to be 81 characters long"};
     }
     
-    if (!puzzleString.split('').every(element => /\d/.test(element) || /\./.test(element))) {
+    if (!puzzleString.split('').every(element => /[1-9]/.test(element) || /\./.test(element))) {
         return {result: false, msg: "Invalid characters in puzzle"};
     }
 
@@ -78,7 +78,7 @@ class SudokuSolver {
   }
 
 
-  checkRowPlacement( row, value) {    
+  checkRowPlacement(row, value) {    
     const rowToCheck = this.arrayObject.filter(x => x.row === row);
     if (rowToCheck.find(x => x.value === value.toString())) {
       return false;
